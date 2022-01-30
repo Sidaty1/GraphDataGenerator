@@ -1,3 +1,4 @@
+from operator import sub
 from imports import *
 
 
@@ -15,14 +16,11 @@ def get_random_graph(number_nodes, probability_edge):
     
     # Set nodes features
     nodes_features = {}
-    for i in range(number_nodes):
+    for node in list(graph.nodes()):
         angle = random.randint(-314, 314)/100
-        try: 
-            number_of_connected_edges =  len(graph.edges(i))
-        except:
-            number_of_connected_edges = 1
+        number_of_connected_edges =  len(graph.edges(node))
         
-        nodes_features[i] = {'angle': angle, 'number_of_connected_edges': number_of_connected_edges}
+        nodes_features[node] = {'angle': angle, 'number_of_connected_edges': number_of_connected_edges}
 
     nx.set_node_attributes(graph, nodes_features)
 
@@ -38,48 +36,63 @@ def get_random_graph(number_nodes, probability_edge):
     return graph
 
 
-def get_subgraph(graph): 
-    nb_nodes = graph.number_of_nodes()
-    if nb_nodes > 3:
-        # Generate random nodes for the subgraph 
-        random_nodes = []
-        random_size_of_subgraph = random.randint(3, nb_nodes)
+def get_random_list(list):
+    size = random.randint(3, len(list))
+    random_list = []
+    for i in range(size):
+        node = random.choice(list)
+        random_list.append(node)
+        list.remove(node)
+
+    return random_list
+
+
+def get_subgraph(graph):
+
+    list_of_nodes = get_random_list(list(graph.nodes()))
+    subgraph = graph.subgraph(list_of_nodes)
+    subgraph = nx.Graph(subgraph)
+    isolated_nodes = list(nx.isolates(subgraph))
+    subgraph.remove_nodes_from(isolated_nodes)
+
+    for node in list(subgraph.nodes()):
+        number_of_connected_edges =  len(subgraph.edges(node))
+        subgraph.nodes[node]['number_of_connected_edges'] = number_of_connected_edges
+
+    return subgraph
+   
+
+def get_data(Nb_of_samples, max_number_of_nodes, min_num_of_nodes, edge_probability=0.6):
+    training_data = []
+
+    for i in range(Nb_of_samples):
+        sample = {}        
+        nb_nodes = random.randint(min_num_nodes, max_num_nodes)
         
-        # Get a list of random nodes that represent the subgraph
-        while len(random_nodes) < random_size_of_subgraph:
-            for j in range(random_size_of_subgraph): 
-                random_node = random.randint(0, nb_nodes)
-                if random_node not in random_nodes and len(random_nodes) < random_size_of_subgraph:
-                    random_nodes.append(random_node)
+        graph = get_random_graph(nb_nodes, edge_probability)
+        subgraph = get_subgraph(graph)
+        
+        sample['Graph'] = graph
+        sample['Subgraph'] = subgraph
 
-        #random_nodes = list(dict.fromkeys(random_nodes))
-                
-        # Get a subgraph based on the generated random nodes 
-        subgraph = graph.subgraph(random_nodes)
+        training_data.append(sample)
 
-        return subgraph, random_nodes
-    else:
-        print("Graph require number of nodes > 3")
-
-    
-graph = get_random_graph(10, 0.6)
-
-number_nodes = graph.number_of_nodes()
-number_edges = graph.number_of_edges()
-
-for i in range(number_nodes):
-    print(graph.nodes[i])
-
-print("\n\n")
-
-for edge in graph.edges():
-    print(graph.edges[edge])
+    return training_data
 
 
-subgraph = get_subgraph(graph)
+""" training_data = get_data(10, 20, 10)
+
+sample = training_data[3]
+
+graph = sample['Graph']
+subgraph = sample['Subgraph']
 
 
-
+for node in list(graph.nodes()):
+    print(graph.nodes[node])
+print("\n")
+for node in list(subgraph.nodes()):
+    print(subgraph.nodes[node]) """
 
 def data_to_json_file():
     return NotImplementedError()
