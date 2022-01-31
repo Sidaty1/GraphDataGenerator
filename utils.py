@@ -1,3 +1,4 @@
+from re import sub
 from imports import *
 
 def get_random_list(list):
@@ -56,3 +57,23 @@ def get_subgraph(graph):
             subgraph.nodes[node]['number_of_connected_edges'] = number_of_connected_edges
 
         return subgraph
+
+def get_node_samples(graph, subgraph):
+    samples = []
+    cache = []
+    for source_node in list(graph.nodes()):
+        for target_node in list(subgraph.nodes()):
+            sample = {}
+            sample['source_node'] = graph.nodes[source_node]
+            sample['target_node'] = subgraph.nodes[target_node]
+            if source_node == target_node:
+                sample['simularity'] = 1
+            else:
+                sample['simularity'] = 0
+            if str(source_node) + str(target_node) not in cache and str(target_node) + str(source_node) not in cache:
+                samples.append(sample)
+                cache.append(str(source_node) + str(target_node))
+
+    return samples
+
+            

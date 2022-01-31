@@ -42,12 +42,19 @@ if __name__ == '__main__':
     graph = sample['Graph']
     subgraph = sample['Subgraph']
 
+    a = graph.number_of_nodes()*subgraph.number_of_nodes()
 
-    for node in list(graph.nodes()):
+    """ for node in list(graph.nodes()):
         print(graph.nodes[node])
     print("\n")
     for node in list(subgraph.nodes()):
-        print(subgraph.nodes[node])
+        print(subgraph.nodes[node]) """
+
+    node_samples = get_node_samples(graph, subgraph)
+    for sample in node_samples:
+        print(sample)
+    print(a)
+    print(len(node_samples))
 
 
 
