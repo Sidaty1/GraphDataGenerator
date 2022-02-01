@@ -1,8 +1,8 @@
-from re import sub
+
 from imports import *
 
 def get_random_list(list):
-    size = random.randint(3, len(list))
+    size = random.randint(min_num_nodes, len(list))
     random_list = []
     for i in range(size):
         node = random.choice(list)
@@ -75,5 +75,24 @@ def get_node_samples(graph, subgraph):
                 cache.append(str(source_node) + str(target_node))
 
     return samples
+
+def get_graph_features(graph, node_i):
+    graph_features = []
+    count = 0
+    for node in list(graph.nodes()):
+        graph_feature = graph.nodes[node]
+        #graph_feature = graph_features.items()
+        graph_features.append([graph_feature['angle'], graph_feature['number_of_connected_edges']])
+        if node == node_i:
+            node_i = count
+        else: 
+            count += 1
+
+    adj = nx.adjacency_matrix(graph)
+    adj = adj.todense()
+    adj = np.array(adj)
+
+    return graph_features, adj, node_i
+
 
             

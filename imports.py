@@ -2,11 +2,12 @@ import numpy as np
 import networkx as nx
 import matplotlib.pyplot as plt
 import random
-from parameters import *
 
 import torch
-from torch.nn import Linear
-import torch.nn.functional as F
+import torch.nn as nn
+import torch.nn.functional as functional
+from torch_geometric.nn.dense.dense_gcn_conv import DenseGCNConv
+ 
+from sklearn.metrics import auc, roc_curve
 
-from torch_geometric.nn import GCNConv
-from torch_geometric.transforms import NormalizeFeatures
+from parameters import *
