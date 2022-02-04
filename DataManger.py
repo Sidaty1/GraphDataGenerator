@@ -100,6 +100,7 @@ class DataManager:
         for i in range(this_number_of_batchs):
             sample = self.random_graphs()
             batch = self.get_batch(sample, this_batch_size)
+            batch = self.shuffle(batch)
             dataset.append(batch)
 
 
@@ -177,7 +178,7 @@ class DataManager:
 
                 feature1, adj1, node1 = get_graph_features(graph1, node1)
                 feature2, adj2, node2 = get_graph_features(graph2, node2)
-
+                
                 features1.append(feature1)
                 adjs1.append(adj1)
                 nodes1.append(node1)

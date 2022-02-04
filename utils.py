@@ -11,7 +11,65 @@ def get_random_list(list):
 
     return random_list
 
-def get_random_graph(number_nodes, probability_edge):
+def get_random_graph(tree_size, probability_edge):
+    tree_size = 40
+    graph = nx.random_tree(n=tree_size, create_using=nx.DiGraph)
+
+    # Ubdate number of nodes
+    
+    # Set nodes features
+    nodes_features = {}
+    for node in list(graph.nodes()):
+        angle = random.randint(-314, 314)/100
+        number_of_connected_edges =  len(graph.edges(node))
+        
+        nodes_features[node] = {'angle': angle, 'number_of_connected_edges': number_of_connected_edges}
+
+    nx.set_node_attributes(graph, nodes_features)
+
+    # Set edges features
+    edges_features = {}
+    for edge in graph.edges():
+        branch_len = random.randint(1, 9) + random.random()
+        branch_radius = random.random()/10
+        edges_features[edge] = {'branch_len': branch_len, 'branch_radius': branch_radius}
+
+    nx.set_edge_attributes(graph, edges_features)
+
+    return graph
+
+
+def get_subgraph(tree):
+    tree_size = 40 
+    found = False
+    while(not found):
+        subtree_source = random.randint(1, tree_size - 1)
+        subtree = dfs_tree(tree, subtree_source)
+        if len(list(nx.DiGraph(subtree).nodes())) >= min_num_nodes and len(list(nx.DiGraph(subtree).nodes())) <= max_num_nodes:
+            found = True
+
+    subtree_nodes = subtree.nodes()
+
+    subtree_node_features = {}
+    for node in subtree_nodes:
+        angle_noise = random.random()/5
+        connected_branches = len(subtree.edges(node))
+        subtree_node_features[node] = {'angle': tree.nodes[node]['angle'] + angle_noise, 'number_of_connected_edges': connected_branches }
+
+    nx.set_node_attributes(subtree, subtree_node_features)
+
+    subtree_edge_features = {}
+    for edge in subtree.edges(): 
+        subtree_branch_len = tree.edges[edge]['branch_len']  + random.random()/5
+        subtree_branch_radius = tree.edges[edge]['branch_radius'] + random.random()/10
+
+        subtree_edge_features[edge] = {'branch_len': subtree_branch_len, 'branch_radius': subtree_branch_radius}
+
+    nx.set_edge_attributes(subtree, subtree_edge_features)
+
+
+    return subtree
+""" def get_random_graph(number_nodes, probability_edge):
 
     # Generate random graph, complexity = O(n^2)
     graph = nx.erdos_renyi_graph(number_nodes, probability_edge)
@@ -56,7 +114,7 @@ def get_subgraph(graph):
             number_of_connected_edges =  len(subgraph.edges(node))
             subgraph.nodes[node]['number_of_connected_edges'] = number_of_connected_edges
 
-        return subgraph
+        return subgraph """
 
 def get_node_samples(graph, subgraph):
     samples = []

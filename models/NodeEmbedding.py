@@ -13,8 +13,12 @@ class NodeMatchingNetwork(torch.nn.Module):
         self.device = device
 
         self.gcn1 = DenseGCNConv(in_channels=initial_features_dims, out_channels=4, bias=True)
-        self.gcn2 = DenseGCNConv(in_channels=4, out_channels=4, bias=True)
-        self.gcn3 = DenseGCNConv(in_channels=4, out_channels=2)
+        self.gcn2 = DenseGCNConv(in_channels=4, out_channels=8, bias=True)
+        self.gcn3 = DenseGCNConv(in_channels=8, out_channels=16, bias=True)
+        self.gcn4 = DenseGCNConv(in_channels=16, out_channels=32, bias=True)
+        self.gcn5 = DenseGCNConv(in_channels=32, out_channels=16, bias=True)
+        self.gcn6 = DenseGCNConv(in_channels=16, out_channels=4, bias=True)
+        self.gcn7 = DenseGCNConv(in_channels=4, out_channels=2)
 
 
         self.mp_w = nn.Parameter(torch.rand(4, 2))
@@ -59,7 +63,7 @@ class NodeMatchingNetwork(torch.nn.Module):
     def forward_dense_gcn_layers(self, feat, adj):
         
         feat_in = feat
-        for i in range(1, 4):
+        for i in range(1, 8):
             feat_out = functional.relu(getattr(self, 'gcn{}'.format(i))(x=feat_in, adj=adj, mask=None, add_loop=False), inplace=True)
             feat_out = functional.dropout(feat_out, p=0.1, training=self.training)
             feat_in = feat_out
@@ -74,6 +78,9 @@ class NodeMatchingNetwork(torch.nn.Module):
 
         feature_p = self.forward_dense_gcn_layers(feat=feature_p_init, adj=adj_p)  # (batch, len_p, dim)
         feature_h = self.forward_dense_gcn_layers(feat=feature_h_init, adj=adj_h)  # (batch, len_h, dim)
+
+        """ print(feature_p.size())
+        print(feature_h.size()) """
 
         attention = self.cosine_attention(feature_p, feature_h)  # (batch, len_p, len_h)
         
@@ -91,13 +98,28 @@ class NodeMatchingNetwork(torch.nn.Module):
         match_p = multi_p
         match_h = multi_h
 
-        print(match_p.size())
-        print(len(node_i))
+
         
 
-        print(match_h.size())
-        print(len(node_j))
+        dis = torch.cdist(match_p, match_h, p=2.0).clamp(min=0, max=1)
+        preds_attention = []
+        preds_match = []
+        for i in range(len(node_i)):
+            preds_attention.append(int(attention[i][node_i[i]][node_j[i]]))
+            preds_match.append(int(dis[i][node_i[i]][node_j[i]]))
 
-        sim = functional.cosine_similarity(match_p[0][node_i], match_h[0][node_j], dim=1).clamp(min=0, max=1)
+        
+            
+        preds_attention = torch.Tensor(preds_attention)
+        print("Preds attention: ", preds_attention)
 
-        return sim
+
+        """ preds_match = torch.Tensor(preds_match)
+        print("Preds Match: ", preds_match) """
+
+
+
+        """ sim = functional.cosine_similarity(match_p[0][node_i], match_h[0][node_j], dim=1).clamp(min=0, max=1) #(node_feature1, node_feature2).clamp(min=0, max=1) # # torch.FloatTensor([random.choice([0, 1]) for val in node_i]) 
+        print("Sim size: ", sim)
+        print("preds size: ", preds) """
+        return preds_attention
