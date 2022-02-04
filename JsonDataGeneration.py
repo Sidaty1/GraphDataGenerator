@@ -10,7 +10,7 @@ class JsonDataGenerator:
         self.min_tree_size = min_tree_size
         self.min_number_subtree_nodes = min_number_subtree_nodes
         self.max_number_subtree_nodes = max_number_subtree_nodes
-        self.data_dir = data_dir
+        self.data_dir = data_dir 
         self.data_exists = data_exists
 
 
@@ -130,8 +130,8 @@ class JsonDataGenerator:
 
     def data_generator(self): 
 
-        trees_path = self.data_dir + '/trees'
-        subtrees_path = self.data_dir + '/subtrees'
+        trees_path = self.data_dir + 'json/trees'
+        subtrees_path = self.data_dir + 'json/subtrees'
         if not os.path.exists(trees_path): 
             os.makedirs(trees_path)
             print('Creating directory for trees json format in path: ', trees_path)

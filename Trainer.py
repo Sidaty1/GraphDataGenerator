@@ -9,7 +9,7 @@ from DataManger import DataManager
 
 class Trainer(object):
 
-    def __init__(self, initial_features_dims, device, datamanager, best_model_file):
+    def __init__(self, initial_features_dims, device, csv_data_file , best_model_file, ):
 
         self.epochs = epochs
         self.lr = lr
@@ -21,7 +21,15 @@ class Trainer(object):
 
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.lr)
 
-        self.train_data = datamanager.get_dataset_per_batch(this_batch_size=10, this_number_of_batchs=100)
+        self.data = pd.read_csv(csv_data_file, index_col=None)
+
+        self.train_data, self.validation_data, self.test_data = np.split(self.data, [int(.6*len(self.data)), int(.8*len(self.data))])
+
+        
+
+
+
+        """ self.train_data = datamanager.get_dataset_per_batch(this_batch_size=10, this_number_of_batchs=100)
         self.train_data = datamanager.get_epoch_data(self.train_data)
 
         self.val_data = datamanager.get_dataset_per_batch(this_batch_size=10, this_number_of_batchs=10)
@@ -31,11 +39,11 @@ class Trainer(object):
         self.test_data = datamanager.get_epoch_data(self.test_data)
 
 
-        """ init_val_auc = self.eval_auc_epoch(model=self.model, eval_epoch_data=self.val_data)
+        init_val_auc = self.eval_auc_epoch(model=self.model, eval_epoch_data=self.val_data)
         print("Initial auc: ", init_val_auc) """
 
         
-    def fit(self):
+    """ def fit(self):
         best_val_auc = None
         for i in range(1, self.epochs + 1):
             loss_vag = self.train_one_epoch(model=self.model, optimizer=self.optimizer, epoch_data=self.train_data, device=self.device)
@@ -76,9 +84,6 @@ class Trainer(object):
 
             loss += mse_loss
 
-            #if sample_index % int(len(permutation)/10) == 0:
-            #print('\tTraining: {}/{}: index = {} loss = {}'.format(sample_index, len(epoch_data), sample_index, mse_loss))
-
             sample_index += 1
 
         return loss / len(permutation)
@@ -104,36 +109,19 @@ class Trainer(object):
             print("number of pred:", total_pred)      
             print("number of good pred:", good_pred)
         
-        return good_pred/total_pred
+        return good_pred/total_pred """
 
-    """ @staticmethod
-    def eval_auc_epoch(model, eval_epoch_data):
-        model.eval()
-        with torch.no_grad():
-            tot_diff = []
-            tot_truth = []
-            for cur_data in eval_epoch_data:
-                x1, x2, adj1, adj2, nodes1, nodes2, y = cur_data
-                batch_output = model(x1, x2, adj1, adj2, nodes1, nodes2)
-                
-                tot_diff += list(batch_output.data.cpu().numpy())
-                tot_truth += [y[i] for i in range(len(y))  if y[i] > 0]
-        
-        diff = np.array(tot_diff) 
-        truth = np.array(tot_truth)
-        print(diff)
-        print(truth)
-        
-        fpr, tpr, _ = roc_curve(truth, diff)
-        model_auc = auc(fpr, tpr)
-        return model_auc """
+
 
 
     
     
 
 if __name__ == '__main__':
-    datamanager = DataManager()
-    trainer = Trainer(initial_features_dims=2, device='cpu', datamanager=datamanager, best_model_file='files/best_model.file')
-    best_val_auc = trainer.fit()
+    #datamanager = DataManager()
+    trainer = Trainer(initial_features_dims=2, device='cpu', csv_data_file='/home/sidaty/Desktop/GraphDataGenerator/data/csv_nodes_data.csv', best_model_file='files/best_model.file')
+    #best_val_auc = trainer.fit()
 
+    print(len(trainer.train_data))
+    print(len(trainer.validation_data))
+    print(len(trainer.test_data))

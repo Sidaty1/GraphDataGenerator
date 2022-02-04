@@ -20,8 +20,8 @@ class NodeDataGenerator(JsonDataGenerator):
         df = pd.DataFrame()
         samples = []
         for i in range(int(self.number_of_samples/10)): 
-            tree_path = self.data_dir + '/trees/tree_' + str(i) + '.json'
-            subtree_path = self.data_dir + '/subtrees/subtree_' + str(i) + '.json'
+            tree_path = self.data_dir + '/json/trees/tree_' + str(i) + '.json'
+            subtree_path = self.data_dir + '/json/subtrees/subtree_' + str(i) + '.json'
 
             tree = self.json_to_networkx(tree_path)
             subtree = self.json_to_networkx(subtree_path)
@@ -43,6 +43,9 @@ class NodeDataGenerator(JsonDataGenerator):
 
         for sample in samples:
             df = df.append(sample, ignore_index=True)
+    
+        # Shuffling the data
+        df = df.sample(frac=1).reset_index(drop=True)
 
         return df
 
@@ -50,21 +53,14 @@ class NodeDataGenerator(JsonDataGenerator):
         dataframe = self.nodes_data_generator()
 
         file_path = self.data_dir + '/csv_nodes_data.csv'
-        with open(file_path, 'w+') as file:
-            dataframe.to_csv(file_path)
-
-        
-
-
-
-
-
-
+        with open(file_path, 'w+'):
+            dataframe.to_csv(file_path, index=False)
 
     
+   
 if __name__ == '__main__': 
     
-    NodeDataGenerator(40, 1000, 100, 80, 10, 20, './data/json', True)
+    NodeDataGenerator(40, 1000, 100, 80, 10, 20, './data', True)
 
 
 
